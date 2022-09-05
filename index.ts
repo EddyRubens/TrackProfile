@@ -16,8 +16,7 @@ function initialize() {
     mapOptions
   );
 
-  map.addListener('click', function(e) {
-    //TODO: the conext click for the delete of points no longer works when this listener is active
+  map.addListener('mousedown', function(e) {
     var currentPath = trackPath.getPath(); // Get path from active PolyLine
     currentPath.push(new google.maps.LatLng(e.latLng)); // Add new point
     trackPath.setMap(null); // Remove the polyline from the amp
@@ -29,6 +28,16 @@ function initialize() {
       strokeWeight: 2,
       map: map,
     });
+    google.maps.event.addListener(trackPath, 'contextmenu', (e: any) => {
+      // Check if click was on a vertex control point
+      if (e.vertex == undefined) {
+        console.log("not on control point");
+        return;
+      }
+  
+      deleteMenu.open(map, trackPath.getPath(), e.vertex);
+    });
+      
   });
 
   const trackCoordinates = [
@@ -60,8 +69,7 @@ function initialize() {
       this.div_.innerHTML = 'Delete';
 
       const menu = this;
-
-      google.maps.event.addDomListener(this.div_, 'click', () => {
+      google.maps.event.addDomListener(this.div_, 'click', (e) => {
         menu.removeVertex();
       });
     }
@@ -72,8 +80,7 @@ function initialize() {
 
       this.getPanes()!.floatPane.appendChild(this.div_);
 
-      // mousedown anywhere on the map except on the menu div will close the
-      // menu.
+      // mousedown anywhere on the map except on the menu div will close the menu.
       this.divListener_ = google.maps.event.addDomListener(
         map.getDiv(),
         'mousedown',
@@ -81,6 +88,7 @@ function initialize() {
           if (e.target != deleteMenu.div_) {
             deleteMenu.close();
           }
+          e.stopPropagation(); // Avoid adding a new point to the track for this 'delete'-click
         },
         true
       );
@@ -154,6 +162,7 @@ function initialize() {
   google.maps.event.addListener(trackPath, 'contextmenu', (e: any) => {
     // Check if click was on a vertex control point
     if (e.vertex == undefined) {
+      console.log("not on control point");
       return;
     }
 
