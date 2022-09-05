@@ -16,14 +16,28 @@ function initialize() {
     mapOptions
   );
 
-  const flightPlanCoordinates = [
+  map.addListener('click', function(e) {
+    var currentCoordinates = trackPath.getPath()
+    currentCoordinates.push(new google.maps.LatLng(e.latLng));
+    trackPath.setMap(null);
+    trackPath = new google.maps.Polyline({
+      path: currentCoordinates,
+      editable: true,
+      strokeColor: '#FF0000',
+      strokeOpacity: 1.0,
+      strokeWeight: 2,
+      map: map,
+    });
+  });
+
+  const trackCoordinates = [
     new google.maps.LatLng(68.64707602559126, 23.24568533956898),
     new google.maps.LatLng(68.64815309781908, 23.234119862631882),
     new google.maps.LatLng(68.64898339551324, 23.232691904630304),
   ];
 
-  const flightPath = new google.maps.Polyline({
-    path: flightPlanCoordinates,
+  let trackPath = new google.maps.Polyline({
+    path: trackCoordinates,
     editable: true,
     strokeColor: '#FF0000',
     strokeOpacity: 1.0,
@@ -136,13 +150,13 @@ function initialize() {
 
   const deleteMenu = new DeleteMenu();
 
-  google.maps.event.addListener(flightPath, 'contextmenu', (e: any) => {
+  google.maps.event.addListener(trackPath, 'contextmenu', (e: any) => {
     // Check if click was on a vertex control point
     if (e.vertex == undefined) {
       return;
     }
 
-    deleteMenu.open(map, flightPath.getPath(), e.vertex);
+    deleteMenu.open(map, trackPath.getPath(), e.vertex);
   });
 }
 
