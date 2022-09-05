@@ -17,11 +17,12 @@ function initialize() {
   );
 
   map.addListener('click', function(e) {
-    var currentCoordinates = trackPath.getPath()
-    currentCoordinates.push(new google.maps.LatLng(e.latLng));
-    trackPath.setMap(null);
-    trackPath = new google.maps.Polyline({
-      path: currentCoordinates,
+    //TODO: the conext click for the delete of points no longer works when this listener is active
+    var currentPath = trackPath.getPath(); // Get path from active PolyLine
+    currentPath.push(new google.maps.LatLng(e.latLng)); // Add new point
+    trackPath.setMap(null); // Remove the polyline from the amp
+    trackPath = new google.maps.Polyline({ // Re-add the updated path
+      path: currentPath,
       editable: true,
       strokeColor: '#FF0000',
       strokeOpacity: 1.0,
